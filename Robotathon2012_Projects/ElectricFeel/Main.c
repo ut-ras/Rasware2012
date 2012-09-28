@@ -1,5 +1,5 @@
 #include "inc/hw_types.h"		// tBoolean
-#include "RASDemo.h"
+#include "ElectricFeel.h"
 #include "utils/uartstdio.h"	// input/output over UART
 #include "driverlib/uart.h"		// input/output over UART
 #include "RASLib/init.h"

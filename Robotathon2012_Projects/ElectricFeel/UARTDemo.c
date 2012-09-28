@@ -5,7 +5,7 @@
 #include "driverlib/gpio.h"
 #include "driverlib/sysctl.h"
 
-#include "RASDemo.h"
+#include "ElectricFeel.h"
 
 void initUART(void) {
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);				

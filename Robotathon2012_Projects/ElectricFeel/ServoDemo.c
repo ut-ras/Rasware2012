@@ -6,7 +6,7 @@
 
 #include "RASLib/servo.h"
 
-#include "RASDemo.h"
+#include "ElectricFeel.h"
 
 void initServo(void) {
 	InitializeServos();

@@ -6,7 +6,7 @@
 
 #include "RASLib/motor.h"
 
-#include "RASDemo.h"
+#include "ElectricFeel.h"
 
 void initMotors(void) {
 	InitializeMotors(false, false);
