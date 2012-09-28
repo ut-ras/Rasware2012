@@ -7,7 +7,7 @@
 
 #include "driverlib/adc.h"
 
-#include "RASDemo.h"
+#include "ElectricFeel.h"
 
 void initIRSensor(void) {
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC);

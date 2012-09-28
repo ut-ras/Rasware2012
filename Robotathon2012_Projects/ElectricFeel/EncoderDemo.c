@@ -6,7 +6,7 @@
 
 #include "RASLib/encoder.h"
 
-#include "RASDemo.h"
+#include "ElectricFeel.h"
 
 void initEncoders(void) {
 	InitializeEncoders(false, false);

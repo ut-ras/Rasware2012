@@ -7,7 +7,7 @@
 
 #include "RASLib/linesensor.h"
 
-#include "RASDemo.h"
+#include "ElectricFeel.h"
 
 void initLineSensor(void) {
 	InitializeLineSensor();
