@@ -16,10 +16,9 @@
 #include "driverlib/adc.h"
 #include "driverlib/interrupt.h"
 
+#include "RASLib/timer.h"
 #include "RASLib/init.h"
-#ifdef USE_RASLIB
 #include "RASLib/servo.h"
-#endif
 
 #define InitializeUART()										\
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);				\
@@ -35,46 +34,45 @@ volatile signed long sideward;
 
 signed char flip0, flip1;
 
-#if USE_RASLIB
-void init_motors(tBoolean inv0, tBoolean inv1) {
-	flip0 = inv0 ? -1 : 1;
-	flip1 = inv1 ? -1 : 1;
-	InitializeServos();
-}
 
-void set_motors(signed char m0, signed char m1) {
-	m0 *= flip0;
-	m1 *= flip1;
-	SetServoPosition(SERVO_0, m0+128);
-	SetServoPosition(SERVO_1, m1+128);
-}
-#else
-//Chris had to eat his words
-//
-//pwm isn't what he thought it was
-//rendering the following code not very useful
 void init_motors(tBoolean inv0, tBoolean inv1) {
-    //GPIO D pin 0 and 1 is for PWM signal
+		//Initialize Motors
+	InitializeServos();
+	
+		//Initialize LED Output
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM);
-	GPIOPinTypePWM(GPIO_PORTD_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+	GPIOPinTypePWM(GPIO_PORTD_BASE, GPIO_PIN_7 | GPIO_PIN_6 | GPIO_PIN_5 | GPIO_PIN_4);
 	
     //Create the PWM signal
-	PWMGenConfigure(PWM_BASE, PWM_GEN_0, PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC);
-	PWMGenPeriodSet(PWM_BASE, PWM_GEN_0, 256);
-	PWMOutputInvert(PWM_BASE, PWM_OUT_0_BIT, inv0);
-	PWMOutputInvert(PWM_BASE, PWM_OUT_1_BIT, inv1);
-	PWMOutputState(PWM_BASE, PWM_OUT_0_BIT | PWM_OUT_1_BIT, true);
-	PWMPulseWidthSet(PWM_BASE, PWM_OUT_0, 128);
-	PWMPulseWidthSet(PWM_BASE, PWM_OUT_1, 128);
-	PWMGenEnable(PWM_BASE, PWM_GEN_0);
+	PWMGenConfigure(PWM_BASE, PWM_GEN_1, PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC);
+	PWMGenPeriodSet(PWM_BASE, PWM_GEN_1, 256);
+	PWMOutputInvert(PWM_BASE, PWM_OUT_4_BIT,  INV_L);
+	PWMOutputInvert(PWM_BASE, PWM_OUT_5_BIT, !INV_L);
+	PWMOutputInvert(PWM_BASE, PWM_OUT_6_BIT,  INV_R);
+	PWMOutputInvert(PWM_BASE, PWM_OUT_7_BIT, !INV_R);
+	PWMOutputState(PWM_BASE, PWM_OUT_7_BIT | PWM_OUT_6_BIT | PWM_OUT_5_BIT | PWM_OUT_4_BIT, true);
+	PWMPulseWidthSet(PWM_BASE, PWM_OUT_4, 128);
+	PWMPulseWidthSet(PWM_BASE, PWM_OUT_5, 128);
+	PWMPulseWidthSet(PWM_BASE, PWM_OUT_6, 128);
+	PWMPulseWidthSet(PWM_BASE, PWM_OUT_7, 128);
+	PWMGenEnable(PWM_BASE, PWM_GEN_1);
 }
 
 void set_motors(signed char m0, signed char m1) {
-	PWMPulseWidthSet(PWM_BASE, PWM_OUT_0, m0+128);
-	PWMPulseWidthSet(PWM_BASE, PWM_OUT_1, m1+128);
+	m0 *= INV_L ? -1 : 1;
+	m1 *= INV_R ? -1 : 1;
+		//Set the servo output
+	SetServoPosition(SERVO_0, m0+128);
+	SetServoPosition(SERVO_1, m1+128);
+	
+		//Set the LED output
+		//TODO make this work
+	PWMPulseWidthSet(PWM_BASE, PWM_OUT_4, m0+128);
+	PWMPulseWidthSet(PWM_BASE, PWM_OUT_5, m1+128);
+	PWMPulseWidthSet(PWM_BASE, PWM_OUT_6, m0+128);
+	PWMPulseWidthSet(PWM_BASE, PWM_OUT_7, m1+128);
 }
-#endif
 
 void init_input() {
     //GPIO D pin 7 is for the power signal
@@ -122,6 +120,25 @@ void adc_handler() {
 	ADCProcessorTrigger(ADC_BASE, 0);
 }
 
+void init_display() {
+	unsigned char eh = 0;
+	
+		//Both port D and port B used as led outputs
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+	GPIOPinTypeGPIOOutput(GPIO_PORTD_BASE, GPIO_PIN_7 | GPIO_PIN_6 | GPIO_PIN_5 | GPIO_PIN_4 | GPIO_PIN_3 | GPIO_PIN_2);
+	GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_3);
+	
+	
+	
+	for (;;) {
+		GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_7 | GPIO_PIN_6 | GPIO_PIN_5 | GPIO_PIN_4 | GPIO_PIN_3 | GPIO_PIN_2, eh);
+		GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_3, 0xff);
+		eh <<= 1;
+		if (!eh) eh = 1;
+		WaitUS(1000000);
+	}
+}
 
 int main() {
 	signed long ml, mr, sc_for, sc_side;
@@ -130,9 +147,9 @@ int main() {
 	InitializeMCU();
 	InitializeUART();
 	IntMasterEnable();
-	
-	init_motors(INV_L, INV_R);
+
 	init_input();
+	init_display();
 	
 	UARTprintf("- Hi I am Couch! -");
 	
