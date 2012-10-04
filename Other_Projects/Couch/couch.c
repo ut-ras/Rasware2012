@@ -1,7 +1,7 @@
-#define DEBUG 1
+#define DEBUG 0
 #define USE_LED 1
 #define MAX_VAL 350
-#define INV_L true
+#define INV_L false
 #define INV_R false
 
 #include "inc/hw_types.h"		// tBoolean
@@ -28,7 +28,7 @@
 
 //these variables are volatile because they can be changed in interrupts
 
-volatile tBoolean power, mode;
+volatile int power, mode;
 									
 volatile signed long forward_l, sideward_l;
 volatile signed long forward_r, sideward_r;
@@ -42,27 +42,11 @@ void init_motors() {
 
 #if USE_LED	
 		//Initialize LED Output
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM);
-	GPIOPinTypePWM(GPIO_PORTD_BASE, GPIO_PIN_7 | GPIO_PIN_6 | GPIO_PIN_5 | GPIO_PIN_4);
-	
-    //Create the PWM signal
-	PWMGenConfigure(PWM_BASE, PWM_GEN_1, PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC);
-	PWMGenPeriodSet(PWM_BASE, PWM_GEN_1, 256);
-	PWMOutputInvert(PWM_BASE, PWM_OUT_4_BIT,  INV_L);
-	PWMOutputInvert(PWM_BASE, PWM_OUT_5_BIT, !INV_L);
-	PWMOutputInvert(PWM_BASE, PWM_OUT_6_BIT,  INV_R);
-	PWMOutputInvert(PWM_BASE, PWM_OUT_7_BIT, !INV_R);
-	PWMOutputState(PWM_BASE, PWM_OUT_7_BIT | PWM_OUT_6_BIT | PWM_OUT_5_BIT | PWM_OUT_4_BIT, true);
-	PWMPulseWidthSet(PWM_BASE, PWM_OUT_4, 128);
-	PWMPulseWidthSet(PWM_BASE, PWM_OUT_5, 128);
-	PWMPulseWidthSet(PWM_BASE, PWM_OUT_6, 128);
-	PWMPulseWidthSet(PWM_BASE, PWM_OUT_7, 128);
-	PWMGenEnable(PWM_BASE, PWM_GEN_1);
+	GPIOPinTypeGPIOOutput(GPIO_PORTD_BASE, GPIO_PIN_7 | GPIO_PIN_6 | GPIO_PIN_5 | GPIO_PIN_4);
 #endif
 }
 
-void set_motors(signed char m0, signed char m1) {
+void set_motors(signed char m0, signed char m1) {	
 	m0 *= (INV_L?-1:1);
 	m1 *= (INV_R?-1:1);
 		//Set the servo output
@@ -71,18 +55,46 @@ void set_motors(signed char m0, signed char m1) {
 	
 #if USE_LED
 		//Set the LED output
-	PWMPulseWidthSet(PWM_BASE, PWM_OUT_4, m0>0 ? 0     : m0*2);
-	PWMPulseWidthSet(PWM_BASE, PWM_OUT_5, m0>0 ? -m0*2 : 0   );
-	PWMPulseWidthSet(PWM_BASE, PWM_OUT_6, m1>0 ? 0     : m1*2);
-	PWMPulseWidthSet(PWM_BASE, PWM_OUT_7, m1>0 ? -m1*2 : 0   );
+	GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_7 | GPIO_PIN_6 | GPIO_PIN_5 | GPIO_PIN_4, 
+							 (m0>30?0x80:0x00) | (m0<-30?0x40:0x00) | (m1>30?0x10:0x00) | (m1<-30?0x20:0x00));
 #endif
 }
 
+void gpiod_handler() {
+	long val = GPIOPinRead(GPIO_PORTA_BASE, GPIO_PIN_3 | GPIO_PIN_2);
+	GPIOPinIntClear(GPIO_PORTA_BASE, GPIO_PIN_3);
+    //Only change mode when power is changed
+	power = (val >> 3)&1;
+	mode = (val >> 2)&1;
+	
+#if USE_LED
+    //Set status LEDs
+	GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_2 | GPIO_PIN_3, mode ? 0x04 : 0x08);
+#endif	
+}
+
+void adc_handler() {
+	unsigned long temp[8];
+	ADCIntClear(ADC_BASE, 0);
+	
+    //The sequence data can be up to 8 values and is buffered
+    //but because we pull the values everytime they are updated,
+    //there should only ever be 4
+	ADCSequenceDataGet(ADC_BASE, 0, temp);
+	forward_r  = (signed long)(temp[0]-512);
+	sideward_r = (signed long)(temp[1]-512);
+	forward_l  = (signed long)(temp[2]-512);
+	sideward_l = (signed long)(temp[3]-512);
+	
+    //Then trigger the ADC sequence again
+	ADCProcessorTrigger(ADC_BASE, 0);
+}
+
 void init_input() {
-    //GPIO A pin 3 is for the power signal
-	  //GPIO A pin 4 is for the drive mode
+    //GPIO A pin 2 is for the power signal
+	  //GPIO A pin 3 is for the drive mode
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-	GPIOPinTypeGPIOInput(GPIO_PORTA_BASE, GPIO_PIN_3 | GPIO_PIN_4);
+	GPIOPinTypeGPIOInput(GPIO_PORTA_BASE, GPIO_PIN_2 | GPIO_PIN_3);
     //Create an interrupt that triggers and calls gpiod_handler 
     //on both edges of D7 signal
     //drive mode will just be polled
@@ -109,43 +121,12 @@ void init_input() {
 #if USE_LED
 		//Initialize LED Output
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
-	GPIOPinTypeGPIOOutput(GPIO_PORTD_BASE, GPIO_PIN_3 | GPIO_PIN_2);
-	GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_3);
+	GPIOPinTypeGPIOOutput(GPIO_PORTD_BASE, GPIO_PIN_2 | GPIO_PIN_3);
+    //Get current state
+	gpiod_handler();
 #endif
 }
 
-void gpiod_handler() {
-	long val;
-	GPIOPinIntClear(GPIO_PORTA_BASE, GPIO_PIN_3);
-	val = GPIOPinRead(GPIO_PORTA_BASE, GPIO_PIN_3 | GPIO_PIN_4);
-    //Only change mode when power is changed
-	power = val >> 3;
-	mode = val >> 4;
-	
-#if USE_LED
-    //Set status LEDs
-	GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_3 | GPIO_PIN_4, mode ? 0x10 : 0x08);
-	GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_3, power << 3);
-#endif	
-}
-
-void adc_handler() {
-	unsigned long temp[8];
-	ADCIntClear(ADC_BASE, 0);
-	
-    //The sequence data can be up to 8 values and is buffered
-    //but because we pull the values everytime they are updated,
-    //there should only ever be 4
-	ADCSequenceDataGet(ADC_BASE, 0, temp);
-	forward_r  = (signed long)(temp[0]-512);
-	sideward_r = (signed long)(temp[1]-512);
-	forward_l  = (signed long)(temp[2]-512);
-	sideward_l = (signed long)(temp[3]-512);
-	
-    //Then trigger the ADC sequence again
-	ADCProcessorTrigger(ADC_BASE, 0);
-}
 
 int main() {
 	signed long ml, mr;
@@ -160,27 +141,35 @@ int main() {
 	init_input();
 	init_motors();
 	
+#ifdef USE_LED
+    //Power LED
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+	GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_3);
+	GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_3, 0xff);
+#endif
+	
 	UARTprintf("- Hi I am Couch! -");
 	
 	for (;;) {
 #if DEBUG
         //range of values is -512 to 512
-		UARTprintf("[ f_l:%3d s_l:%3d f_r:%3d s_r:%3d p:%1d ]\n",forward_l,sideward_l,forward_r,sideward_r,power);
+		UARTprintf("[ f_l:%3d s_l:%3d f_r:%3d s_r:%3d p:%1d m:%1d]\n",
+							 forward_l,sideward_l,forward_r,sideward_r,power,mode);
 #endif
 		
-		if (!power) {
+		if (power) {
             //scale the motors to match MAX_VAL
 			sc_for_l = (forward_l * 512)/MAX_VAL;
 			sc_side_l = (sideward_l * 512)/MAX_VAL;
 			sc_for_r = (forward_r * 512)/MAX_VAL;
 			sc_side_r = (sideward_r * 512)/MAX_VAL;
 	        
-			if (mode) /* Arcade Style */{
+			if (!mode) /* Arcade Style */{
 				  //Very simple allows for zero point turning
           //and uses overflow check to prevent large values
 				ml += sc_side_r;
-				ml += sc_for_r;
-				mr -= sc_side_r;
+				ml -= sc_for_r;
+				mr += sc_side_r;
 				mr += sc_for_r;
 			} else /* Control Style */ {
 				  //Even simpler allowing direct control of motors
@@ -200,7 +189,12 @@ int main() {
 			set_motors((signed char)ml, (signed char)mr);
 			
 		} else {
+				//Set motors to off
 			set_motors(0, 0);
+			
+			GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_7 | GPIO_PIN_6 | GPIO_PIN_5 | GPIO_PIN_4, 0xff);
+			
+			while (!power);
 		}
 	}
 }
