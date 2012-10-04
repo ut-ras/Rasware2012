@@ -1,7 +1,8 @@
 #define DEBUG 0
 #define USE_LED 1
+#define MIN_VAL 30
 #define MAX_VAL 350
-#define INV_L false
+#define INV_L true
 #define INV_R false
 
 #include "inc/hw_types.h"		// tBoolean
@@ -47,17 +48,17 @@ void init_motors() {
 }
 
 void set_motors(signed char m0, signed char m1) {	
+	#if USE_LED
+		//Set the LED output
+	GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_7 | GPIO_PIN_6 | GPIO_PIN_5 | GPIO_PIN_4, 
+							 (m0>MIN_VAL ? 0x10:0x00) | (m0<-MIN_VAL ? 0x20:0x00) | (m1>MIN_VAL ? 0x80:0x00) | (m1<-MIN_VAL ? 0x40:0x00));
+#endif
+    //invert if necessary
 	m0 *= (INV_L?-1:1);
 	m1 *= (INV_R?-1:1);
 		//Set the servo output
 	SetServoPosition(SERVO_0, m0+128);
 	SetServoPosition(SERVO_1, m1+128);
-	
-#if USE_LED
-		//Set the LED output
-	GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_7 | GPIO_PIN_6 | GPIO_PIN_5 | GPIO_PIN_4, 
-							 (m0>30?0x80:0x00) | (m0<-30?0x40:0x00) | (m1>30?0x10:0x00) | (m1<-30?0x20:0x00));
-#endif
 }
 
 void gpiod_handler() {
@@ -168,8 +169,8 @@ int main() {
 				  //Very simple allows for zero point turning
           //and uses overflow check to prevent large values
 				ml += sc_side_r;
-				ml -= sc_for_r;
-				mr += sc_side_r;
+				ml += sc_for_r;
+				mr -= sc_side_r;
 				mr += sc_for_r;
 			} else /* Control Style */ {
 				  //Even simpler allowing direct control of motors
