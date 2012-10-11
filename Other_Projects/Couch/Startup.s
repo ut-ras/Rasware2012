@@ -106,10 +106,10 @@ __Vectors
         DCD     0                           ; Reserved
         DCD     IntDefaultHandler           ; PendSV Handler
         DCD     IntDefaultHandler           ; SysTick Handler
-        DCD     IntDefaultHandler           ; GPIO Port A
+        DCD     gpiod_handler           ; GPIO Port A
         DCD     EncoderInterruptHandler           ; GPIO Port B
         DCD     EncoderInterruptHandler           ; GPIO Port C
-        DCD     gpiod_handler           ; GPIO Port D
+        DCD     IntDefaultHandler           ; GPIO Port D
         DCD     IntDefaultHandler           ; GPIO Port E
         DCD     IntDefaultHandler           ; UART0
         DCD     IntDefaultHandler           ; UART1
