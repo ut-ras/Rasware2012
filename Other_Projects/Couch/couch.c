@@ -168,9 +168,9 @@ int main() {
 			if (!mode) /* Arcade Style */{
 				  //Very simple allows for zero point turning
           //and uses overflow check to prevent large values
-				ml += sc_side_r;
+				ml -= sc_side_r;
 				ml += sc_for_r;
-				mr -= sc_side_r;
+				mr += sc_side_r;
 				mr += sc_for_r;
 			} else /* Control Style */ {
 				  //Even simpler allowing direct control of motors
