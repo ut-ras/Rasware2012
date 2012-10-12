@@ -18,16 +18,15 @@
 
 volatile unsigned long sonarValue = 0;
 
-static volatile enum {READY,PULSE,WAIT,TIMING,DELAY} status;
-static volatile tBoolean waiting = false;
+static volatile enum { READY, PULSE, WAIT, TIMING, DELAY, DELAY_PULSE } status;
 static void (*callback)(unsigned long) = 0;
 
 
 static void BeginSonarSequence(void) {
-	waiting = false;
 	status = PULSE;
 	GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_2, GPIO_PIN_2);
-	TimerLoadSet(TIMER2_BASE, TIMER_A, US(8));
+
+    TimerLoadSet(TIMER2_BASE, TIMER_A, US(8));
     TimerEnable(TIMER2_BASE, TIMER_A);
 }
 
@@ -44,8 +43,11 @@ void SonarTimerIntHandler(void) {
 
 	case DELAY:
 		status = READY;
-		if (waiting) BeginSonarSequence();
 	    break;
+
+    case DELAY_PULSE:
+        BeginSonarSequence();
+        break;
 
     default:
 		sonarValue = (unsigned long)-1;
@@ -105,5 +107,5 @@ void SonarBackgroundRead(void (*cb)(unsigned long)) {
 	if (status == READY)
 		BeginSonarSequence();
 	else if (status == DELAY)
-		waiting = true;
+		status = DELAY_PULSE;
 }
