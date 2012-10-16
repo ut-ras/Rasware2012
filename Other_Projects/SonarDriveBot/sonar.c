@@ -16,73 +16,88 @@
 #define MS(x) (US(x)*1000)
 #define MAX_SONAR_TIME MS(36)
 
-volatile unsigned long sonarValue = 0;
+volatile unsigned long sonarValues[2];
 
 static volatile enum { READY, PULSE, WAIT, TIMING, DELAY, DELAY_PULSE } status;
-static void (*callback)(unsigned long) = 0;
+static volatile int current = 0;
+static void (*callback)(unsigned long *) = 0;
 
 
 static void BeginSonarSequence(void) {
 	status = PULSE;
-	GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_2, GPIO_PIN_2);
+	GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_2 | GPIO_PIN_4, current ? GPIO_PIN_2 : GPIO_PIN_4);
 
-    TimerLoadSet(TIMER2_BASE, TIMER_A, US(8));
-    TimerEnable(TIMER2_BASE, TIMER_A);
+  TimerLoadSet(TIMER2_BASE, TIMER_A, US(8));
+  TimerEnable(TIMER2_BASE, TIMER_A);
 }
 
 void SonarTimerIntHandler(void) {
 	TimerIntClear(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
-    switch (status) {
+  switch (status) {
 	case PULSE:
 		status = WAIT;
-		GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_2, 0);
+		GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_2 | GPIO_PIN_4, 0);
 
-        TimerLoadSet(TIMER2_BASE, TIMER_A, MAX_SONAR_TIME);
-        TimerEnable(TIMER2_BASE, TIMER_A);
-        break;
+    TimerLoadSet(TIMER2_BASE, TIMER_A, MAX_SONAR_TIME);
+    TimerEnable(TIMER2_BASE, TIMER_A);
+    break;
 
 	case DELAY:
 		status = READY;
-	    break;
+	  break;
 
-    case DELAY_PULSE:
-        BeginSonarSequence();
-        break;
+  case DELAY_PULSE:
+    BeginSonarSequence();
+    break;
 
-    default:
-		sonarValue = (unsigned long)-1;
+  default:
+		sonarValues[current] = (unsigned long)-1;
+		current = !current;
 		status = READY;
-		if (callback) (*callback)(sonarValue);
-        break;
-    }
+	
+		if (!current) {
+				if (callback) (*callback)((unsigned long*)sonarValues);
+		} else {
+			SonarBackgroundRead(callback);		
+		}
+    break;
+  }
 }
 
 void SonarGPIOIntHandler(void) {
-	GPIOPinIntClear(GPIO_PORTD_BASE, GPIO_PIN_3);
-	if (GPIOPinRead(GPIO_PORTD_BASE, GPIO_PIN_3)) {
+	GPIOPinIntClear(GPIO_PORTD_BASE, GPIO_PIN_5 | GPIO_PIN_3);
+	if (GPIOPinRead(GPIO_PORTD_BASE, current ? GPIO_PIN_3 : GPIO_PIN_5)) {
 		status = TIMING;
 	
-        TimerLoadSet(TIMER2_BASE, TIMER_A, MAX_SONAR_TIME);
-        TimerEnable(TIMER2_BASE, TIMER_A);
+    TimerLoadSet(TIMER2_BASE, TIMER_A, MAX_SONAR_TIME);
+    TimerEnable(TIMER2_BASE, TIMER_A);
 	} else {
-		sonarValue = TimerValueGet(TIMER2_BASE, TIMER_A);
+		sonarValues[current] = TimerValueGet(TIMER2_BASE, TIMER_A);
+		current = !current;
 		status = DELAY;
-		if (callback) (*callback)(sonarValue);
+		
+		if (!current) {
+				if (callback) (*callback)((unsigned long*)sonarValues);
+		} else {
+				SonarBackgroundRead(callback);
+		}
         
-        TimerLoadSet(TIMER2_BASE, TIMER_A, MS(10));
-        TimerEnable(TIMER2_BASE, TIMER_A);
+    TimerLoadSet(TIMER2_BASE, TIMER_A, MS(10));
+    TimerEnable(TIMER2_BASE, TIMER_A);
 	}
 }
 
 
-void SonarInit(void) {
+void SonarInit() {
 	// initialize gpio
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
-	GPIOPinTypeGPIOInput (GPIO_PORTD_BASE, GPIO_PIN_3);
-	GPIOPinTypeGPIOOutput(GPIO_PORTD_BASE, GPIO_PIN_2);
 	
-	GPIOIntTypeSet(GPIO_PORTD_BASE, GPIO_PIN_3, GPIO_BOTH_EDGES);
-	GPIOPinIntEnable(GPIO_PORTD_BASE, GPIO_PIN_3);
+	GPIOPinTypeGPIOInput (GPIO_PORTD_BASE, GPIO_PIN_5 | GPIO_PIN_3);
+	GPIOPinTypeGPIOOutput(GPIO_PORTD_BASE, GPIO_PIN_4 | GPIO_PIN_2);
+	
+	GPIOIntTypeSet(GPIO_PORTD_BASE, GPIO_PIN_5 | GPIO_PIN_3, GPIO_BOTH_EDGES);
+	GPIOPinIntEnable(GPIO_PORTD_BASE, GPIO_PIN_5 | GPIO_PIN_3);
+	
 	IntEnable(INT_GPIOD);
 	
 	//initialize timer
@@ -92,16 +107,18 @@ void SonarInit(void) {
 	IntEnable(INT_TIMER2A);
 	TimerIntEnable(TIMER2_BASE, TIMER_TIMA_TIMEOUT);
 	
+	IntMasterEnable();
 	status = READY;
 }
 
-unsigned long SonarRead(void) {
+unsigned long *SonarRead(void) {
 	SonarBackgroundRead(0);
 	while(status != DELAY && status != READY);
-	return sonarValue;
+	return (unsigned long*)sonarValues;
 }
 
-void SonarBackgroundRead(void (*cb)(unsigned long)) {
+void SonarBackgroundRead(void (*cb)(unsigned long *)) {
+	
 	callback = cb;
 
 	if (status == READY)

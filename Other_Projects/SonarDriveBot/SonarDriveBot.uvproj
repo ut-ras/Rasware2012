@@ -394,109 +394,9 @@
               <FilePath>.\Startup.s</FilePath>
             </File>
             <File>
-              <FileName>cb_main.c</FileName>
+              <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\cb_main.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Logic</GroupName>
-          <Files>
-            <File>
-              <FileName>cb_travel.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\cb_travel.c</FilePath>
-            </File>
-            <File>
-              <FileName>cb_travel.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\cb_travel.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Drivers</GroupName>
-          <Files>
-            <File>
-              <FileName>cb_adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\cb_adc.c</FilePath>
-            </File>
-            <File>
-              <FileName>cb_adc.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\cb_adc.h</FilePath>
-            </File>
-            <File>
-              <FileName>cb_compass.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\cb_compass.c</FilePath>
-            </File>
-            <File>
-              <FileName>cb_compass.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\cb_compass.h</FilePath>
-            </File>
-            <File>
-              <FileName>cb_i2c.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\cb_i2c.c</FilePath>
-            </File>
-            <File>
-              <FileName>cb_i2c.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\cb_i2c.h</FilePath>
-            </File>
-            <File>
-              <FileName>cb_led.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\cb_led.c</FilePath>
-            </File>
-            <File>
-              <FileName>cb_led.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\cb_led.h</FilePath>
-            </File>
-            <File>
-              <FileName>cb_sonar.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\cb_sonar.c</FilePath>
-            </File>
-            <File>
-              <FileName>cb_sonar.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\cb_sonar.h</FilePath>
-            </File>
-            <File>
-              <FileName>cb_encoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\cb_encoder.c</FilePath>
-            </File>
-            <File>
-              <FileName>cb_encoder.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\cb_encoder.h</FilePath>
-            </File>
-            <File>
-              <FileName>cb_motor.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\cb_motor.c</FilePath>
-            </File>
-            <File>
-              <FileName>cb_motor.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\cb_motor.h</FilePath>
-            </File>
-            <File>
-              <FileName>cb_jumper.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\cb_jumper.c</FilePath>
-            </File>
-            <File>
-              <FileName>cb_jumper.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\cb_jumper.h</FilePath>
+              <FilePath>.\main.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -517,6 +417,31 @@
               <FileName>uartstdio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\StellarisWare\utils\uartstdio.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Drivers</GroupName>
+          <Files>
+            <File>
+              <FileName>sonar.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\sonar.c</FilePath>
+            </File>
+            <File>
+              <FileName>sonar.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\sonar.h</FilePath>
+            </File>
+            <File>
+              <FileName>control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\control.c</FilePath>
+            </File>
+            <File>
+              <FileName>control.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\control.h</FilePath>
             </File>
           </Files>
         </Group>

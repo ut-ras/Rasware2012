@@ -78,10 +78,10 @@ __heap_limit
         THUMB
 
 		EXTERN	LSIntHandler
-		EXTERN	EncoderIntHandler
-		EXTERN  I2CIntHandler
+		EXTERN	EncoderInterruptHandler
 		EXTERN  SonarGPIOIntHandler
 		EXTERN  SonarTimerIntHandler
+		EXTERN  ADCIntHandler
 
 ;******************************************************************************
 ;
@@ -107,8 +107,8 @@ __Vectors
         DCD     IntDefaultHandler           ; PendSV Handler
         DCD     IntDefaultHandler           ; SysTick Handler
         DCD     IntDefaultHandler           ; GPIO Port A
-        DCD     EncoderIntHandler           ; GPIO Port B
-        DCD     EncoderIntHandler           ; GPIO Port C
+        DCD     EncoderInterruptHandler     ; GPIO Port B
+        DCD     EncoderInterruptHandler     ; GPIO Port C
         DCD     SonarGPIOIntHandler         ; GPIO Port D
         DCD     IntDefaultHandler           ; GPIO Port E
         DCD     IntDefaultHandler           ; UART0
@@ -120,7 +120,7 @@ __Vectors
         DCD     IntDefaultHandler           ; PWM Generator 1
         DCD     IntDefaultHandler           ; PWM Generator 2
         DCD     IntDefaultHandler           ; Quadrature Encoder
-        DCD     IntDefaultHandler           ; ADC Sequence 0
+        DCD     ADCIntHandler               ; ADC Sequence 0
         DCD     IntDefaultHandler           ; ADC Sequence 1
         DCD     IntDefaultHandler           ; ADC Sequence 2
         DCD     IntDefaultHandler           ; ADC Sequence 3
