@@ -19,7 +19,8 @@
 
 #include "RASLib/timer.h"
 #include "RASLib/init.h"
-#include "RASLib/servo.h"
+
+#include "xa_servo.h"
 
 #define InitializeUART()										\
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);				\
@@ -59,6 +60,8 @@ void set_motors(signed char m0, signed char m1) {
 		//Set the servo output
 	SetServoPosition(SERVO_0, m0+128);
 	SetServoPosition(SERVO_1, m1+128);
+	SetServoPosition(SERVO_2, m0+128);
+	SetServoPosition(SERVO_3, m1+128);
 }
 
 void gpiod_handler() {
