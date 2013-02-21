@@ -19,7 +19,8 @@
 
 #include "RASLib/timer.h"
 #include "RASLib/init.h"
-#include "RASLib/servo.h"
+
+#include "xa_servo.h"
 
 #define InitializeUART()										\
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);				\
@@ -59,6 +60,8 @@ void set_motors(signed char m0, signed char m1) {
 		//Set the servo output
 	SetServoPosition(SERVO_0, m0+128);
 	SetServoPosition(SERVO_1, m1+128);
+	SetServoPosition(SERVO_2, m0+128);
+	SetServoPosition(SERVO_3, m1+128);
 }
 
 void gpiod_handler() {
@@ -168,9 +171,9 @@ int main() {
 			if (!mode) /* Arcade Style */{
 				  //Very simple allows for zero point turning
           //and uses overflow check to prevent large values
-				ml += sc_side_r;
+				ml -= sc_side_r;
 				ml += sc_for_r;
-				mr -= sc_side_r;
+				mr += sc_side_r;
 				mr += sc_for_r;
 			} else /* Control Style */ {
 				  //Even simpler allowing direct control of motors
