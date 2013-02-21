@@ -394,14 +394,9 @@
               <FilePath>.\Startup.s</FilePath>
             </File>
             <File>
-              <FileName>Main.c</FileName>
+              <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Main.c</FilePath>
-            </File>
-            <File>
-              <FileName>RASDemo.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\RASDemo.h</FilePath>
+              <FilePath>.\main.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -429,34 +424,34 @@
           <GroupName>Source</GroupName>
           <Files>
             <File>
-              <FileName>EncoderDemo.c</FileName>
+              <FileName>comm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\EncoderDemo.c</FilePath>
+              <FilePath>.\comm.c</FilePath>
             </File>
             <File>
-              <FileName>IRSensorDemo.c</FileName>
+              <FileName>crane.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\IRSensorDemo.c</FilePath>
+              <FilePath>.\crane.c</FilePath>
             </File>
             <File>
-              <FileName>LineSensorDemo.c</FileName>
+              <FileName>motor.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\LineSensorDemo.c</FilePath>
+              <FilePath>.\motor.c</FilePath>
             </File>
             <File>
-              <FileName>MotorDemo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\MotorDemo.c</FilePath>
+              <FileName>comm.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\comm.h</FilePath>
             </File>
             <File>
-              <FileName>ServoDemo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\ServoDemo.c</FilePath>
+              <FileName>crane.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\crane.h</FilePath>
             </File>
             <File>
-              <FileName>UARTDemo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\UARTDemo.c</FilePath>
+              <FileName>motor.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\motor.h</FilePath>
             </File>
           </Files>
         </Group>
