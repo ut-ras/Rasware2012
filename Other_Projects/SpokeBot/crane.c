@@ -5,12 +5,14 @@
 #include "driverlib/sysctl.h"
 #include "driverlib/adc.h"
 
+#include "RASLib/servo.h"
+
 void crane_init(void) {
-	// TODO: This should initialize everythin the crane control needs
+	InitializeServos();
 }
 
 void crane_set(unsigned char val) {
-	// TODO: This shoule set the crane to some state
-	//
-	// Finer control could be added if needed
+	SetServoPosition(SERVO_0, val);
 }
+
+
