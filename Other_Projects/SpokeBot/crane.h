@@ -12,6 +12,6 @@ void isDisk_grabbedInit(void);
 void crane_set(unsigned char val);
 
 // Checks state of disk
-tbool isDisk_grabbed(void);
+BOOL isDisk_grabbed(void);
 
 #endif

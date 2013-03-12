@@ -7,6 +7,10 @@
 
 #include "RASLib/servo.h"
 
+#define BOOL int
+#define TRUE 1
+#define FALSE 0
+
 void crane_init(void) {
 	InitializeServos();
     isDisk_grabbedInit(void);
@@ -32,18 +36,18 @@ void isDisk_grabbedInit(void) {
 //      then disk is in contact with crane
 //
 //  Inputs: void
-//  Outputs: tbool TRUE if disk connected, tbool FALSE if not
+//  Outputs: BOOL(int) TRUE(1) if disk connected, FALSE(0) if not
 //
 //  -->Uses PortB Pin2, call isDisk_grabbedInit before
 //      calling this function
 //********************************************************
-tbool isDisk_grabbed(void) {
+BOOL isDisk_grabbed(void) {
     //Test Input
     if(GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_2) != 0) {
         // Pin High
-        return true;
+        return TRUE;
     } else {
         // Pin Low
-        return false;
+        return FALSE;
     }
 }
