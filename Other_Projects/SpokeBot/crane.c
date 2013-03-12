@@ -21,11 +21,11 @@ void crane_set(unsigned char val) {
 }
 
 //*******************************************************
-//  Initiliazes pin for signal test on crane to
+//  Initializes pin for signal test on crane to
 //      determine state of disk pick-up
 //*******************************************************
 void isDisk_grabbedInit(void) {
-    //Pin initilizations
+    //Pin initializations
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
     GPIOPinTypeGPIOInput(GPIO_PORTB_BASE, GPIO_PIN_2);
 }
