@@ -9,6 +9,7 @@
 
 void crane_init(void) {
 	InitializeServos();
+    isDisk_grabbedInit(void);
 }
 
 void crane_set(unsigned char val) {
