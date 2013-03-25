@@ -21,18 +21,18 @@ void crane_pickup(void)
 
 {
 	
-	//Servo 1 set to 180 offset of 0
-	//Servo 2 set to down until contact limit switch
-	//Servo 2 up to original position + x
-	//Servo 1 set to 0
-	//Servo 2 down by x 
+	//VALUES NOT YET TESTED
 
 	
-	servo_set(1, 0);
+	servo_set(1, 127);     //Servo 1 set to 180 offset of 0
+	WaitUS(2000000);       
+	servo_set(2, -100);    //Servo 2 set to down until contact limit switch
 	WaitUS(2000000);
-	servo_set(1,100);
+	servo_set(2,120);     //Servo 2 up to original position + x
 	WaitUS(2000000);
-	servo_set(1,-100);
+	servo_set(1, -128);   //Servo 1 set to 0
+	WaitUS(2000000);
+	servo_set(2, -20);    //Servo 2 down by x 
 	
 	
 }
