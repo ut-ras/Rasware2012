@@ -50,6 +50,9 @@ int main(void) {
 	contactor_init();
 	crane_init();
 	
+	crane_pickup();
+	while (1);
+	
 	while (1) {
 		unsigned char cmd, dev;
 		cmd = comm_read();

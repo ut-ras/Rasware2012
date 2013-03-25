@@ -6,6 +6,7 @@
 #include "driverlib/adc.h"
 
 #include "RASLib/servo.h"
+#include "RASLib/timer.h"
 
 #include "servo.h"
 
@@ -17,6 +18,5 @@ void servo_init(void) {
 }
 
 void servo_set(int num, signed char val) {
-	if (num >= 0 && num < 4) return;
-		SetServoPosition(SLOOKUP[num], val - 128);
+		SetServoPosition(SLOOKUP[num], (unsigned char)(val + 128));
 }
