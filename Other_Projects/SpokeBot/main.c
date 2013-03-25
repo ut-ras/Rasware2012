@@ -6,6 +6,8 @@
 #include "comm.h"
 #include "motor.h"
 #include "crane.h"
+#include "contactor.h"
+#include "servo.h"
 
 // The main function simply initializes all of the 
 // devices that will be used. Then it enters a loop
@@ -13,20 +15,29 @@
 // respond to
 
 // Supported messages
-// 	w[d][val]  - set device motor
+// 	w[d][val]  - set device
 // 	p          - ping the rasboard, responds with c
-// 	r[d]			 - reads the value sensor (will be implemented if needed)
+// 	r[d]			 - reads the value (will be implemented if needed)
 //  !          - reset everything
 // Responses can be:
 // 	c          - successful ping
 //  a[d]       - successful write
-//  d[d]_ 	   - successful read with data
+//  d[d][val]  - successful read with data
 //  x          - failure
 
-enum devices {
-	MOTOR_LEFT  = 'm'+0,
-	MOTOR_RIGHT = 'm'+1,
-	CRANE = 'c'
+enum {
+	MOTOR_LEFT  = 'm',
+	MOTOR_RIGHT      ,
+	MOTOR_0	 	  = 'm',
+	MOTOR_1   	     ,
+
+	SERVO_0 	  = 's',
+	SERVO_1 	       ,
+	SERVO_2 	       ,
+	SERVO_3 	       ,
+	
+	CONTACTOR 	= 'c',
+	CRANE 	    = 'r',
 };
 
 int main(void) {	  	 
@@ -35,6 +46,8 @@ int main(void) {
 	
 	comm_init();
 	motor_init();
+	servo_init();
+	contactor_init();
 	crane_init();
 	
 	while (1) {
@@ -47,21 +60,31 @@ int main(void) {
 			
 				switch (dev) {
 					case MOTOR_LEFT:
-						motor_left(comm_read());
+						motor_left((signed char)comm_read());
 					
 						comm_write('a');
 						comm_write(MOTOR_LEFT);
 						continue;
 					
 					case MOTOR_RIGHT:
-						motor_right(comm_read());
+						motor_right((signed char)comm_read());
 					
 						comm_write('a');
 						comm_write(MOTOR_RIGHT);
 						continue;
 					
+					case SERVO_0:
+					case SERVO_1:
+					case SERVO_2:
+					case SERVO_3:
+						servo_set(dev-SERVO_0, (signed char)comm_read());
+					
+					  comm_write('a');
+						comm_write(dev);
+					  continue;
+					
 					case CRANE:
-						crane_set(comm_read());
+						crane_pickup();
 					
 						comm_write('a');
 						comm_write(CRANE);
@@ -72,7 +95,19 @@ int main(void) {
 						continue;
 				}
 				
-			//case 'r': to be implemented 
+			case 'r':
+				dev = comm_read();
+			
+				switch (dev) {
+					case CONTACTOR:
+						comm_write('d');
+					  comm_write(contactor_is_grabbed());
+						continue;
+					
+					default:
+						comm_write('x');
+						continue;
+				}
 				
 			case 'p':
 				comm_write('c');

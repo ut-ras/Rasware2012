@@ -453,6 +453,26 @@
               <FileType>5</FileType>
               <FilePath>.\motor.h</FilePath>
             </File>
+            <File>
+              <FileName>servo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\servo.c</FilePath>
+            </File>
+            <File>
+              <FileName>servo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\servo.h</FilePath>
+            </File>
+            <File>
+              <FileName>contactor.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\contactor.h</FilePath>
+            </File>
+            <File>
+              <FileName>contactor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\contactor.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

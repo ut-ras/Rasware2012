@@ -5,9 +5,9 @@
 void motor_init(void);
 
 // Set left motor power
-void motor_left(unsigned char val);
+void motor_left(signed char val);
 
 // Set right motor power
-void motor_right(unsigned char val);
+void motor_right(signed char val);
 
 #endif
