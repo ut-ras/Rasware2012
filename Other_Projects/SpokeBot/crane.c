@@ -12,14 +12,25 @@
 //Servo 1 is for lazy susan base
 //Servo 2 is arm
 
-void crane_init(void) 
-{
-	
+void crane_init(void) {
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
+  GPIOPinTypeGPIOInput(GPIO_PORTD_BASE, GPIO_PIN_4 | GPIO_PIN_6);
 }
 
-void crane_pickup(void) 
+void crane_pickup(signed char speed) { 
+	GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_2);
+	servo_set(3, speed);
+	
+	while (!GPIOPinRead(GPIO_PORTD_BASE, GPIO_PIN_6));
+	
+	servo_set(3, -speed);
+	
+	while (!GPIOPinRead(GPIO_PORTD_BASE, GPIO_PIN_4));
+	
+	servo_set(3, 0);
 
-{
+
+/*	Sorry Michelle : (
 	
 	//VALUES NOT YET TESTED
 
@@ -32,7 +43,6 @@ void crane_pickup(void)
 	WaitUS(2000000);
 	servo_set(1, -128);   //Servo 1 set to 0
 	WaitUS(2000000);
-	servo_set(2, -20);    //Servo 2 down by x 
-	
-	
+	servo_set(2, -20);    //Servo 2 down by x  
+*/	
 }

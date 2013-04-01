@@ -50,9 +50,6 @@ int main(void) {
 	contactor_init();
 	crane_init();
 	
-	crane_pickup();
-	while (1);
-	
 	while (1) {
 		unsigned char cmd, dev;
 		cmd = comm_read();
@@ -87,7 +84,7 @@ int main(void) {
 					  continue;
 					
 					case CRANE:
-						crane_pickup();
+						crane_pickup((signed char)comm_read());
 					
 						comm_write('a');
 						comm_write(CRANE);
