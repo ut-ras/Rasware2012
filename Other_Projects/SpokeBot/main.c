@@ -30,6 +30,11 @@ enum {
 	MOTOR_RIGHT      ,
 	MOTOR_0	 	  = 'm',
 	MOTOR_1   	     ,
+	
+	STOP        = 'o',
+	TURN			  = 'q',
+	FORWARD			= 'f',
+	
 
 	SERVO_0 	  = 's',
 	SERVO_1 	       ,
@@ -71,6 +76,27 @@ int main(void) {
 					
 						comm_write('a');
 						comm_write(MOTOR_RIGHT);
+						continue;
+					
+					case STOP:
+						motor_stop();
+					
+						comm_write('a');
+						comm_write(STOP);
+						continue;
+					
+					case TURN:
+						motor_turn((signed char)comm_read());
+					
+						comm_write('a');
+						comm_write(TURN);
+						continue;
+					
+					case FORWARD:
+						motor_forward((unsigned char)comm_read());
+					
+						comm_write('a');
+						comm_write(FORWARD);
 						continue;
 					
 					case SERVO_0:

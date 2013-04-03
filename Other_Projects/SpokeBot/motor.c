@@ -20,3 +20,14 @@ void motor_left(unsigned char val) {
 void motor_right(unsigned char val) {
 	SetMotorPower(MOTOR_1, val);
 }
+
+void motor_stop(void) {
+	SetMotorPower(MOTOR_0, 0);
+	SetMotorPower(MOTOR_1, 0);
+}
+
+void motor_turn(unsigned char degrees) {
+	// TODO for rachel
+}
+
+
