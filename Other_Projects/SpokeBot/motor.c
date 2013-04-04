@@ -42,7 +42,7 @@ void motor_turn(short degrees) {
 	int speed_R = 0;
 	int pos = degree * TICKS_DEGREE;
 	PresetEncoderCounts(0, 0);
-	InitializeEncoders(true, false);
+	InitializeEncoders(false, true);
 	encoder0 = GetEncoderCount(ENCODER_0);
 	encoder1 = GetEncoderCount(ENCODER_1);
 	while((encoder0) > (pos+ERR) || (encoder0< pos-ERR)){ 
@@ -66,4 +66,7 @@ void motor_turn(short degrees) {
 	//Wait(10000);
 }
 
-
+void motor_forward(unsigned char distance){
+	
+	
+}
