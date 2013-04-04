@@ -86,14 +86,22 @@ int main(void) {
 						continue;
 					
 					case TURN:
-						motor_turn((signed char)comm_read());
+						{ union { signed short s; char d[2]; } data;
+						  data.d[0] = comm_read();
+							data.d[1] = comm_read();
+							motor_turn(data.s);
+					  }
 					
 						comm_write('a');
 						comm_write(TURN);
 						continue;
 					
 					case FORWARD:
-						motor_forward((unsigned char)comm_read());
+						{ union { signed short s; char d[2]; } data;
+						  data.d[0] = comm_read();
+							data.d[1] = comm_read();
+							motor_forward(data.s);
+					  }
 					
 						comm_write('a');
 						comm_write(FORWARD);

@@ -14,13 +14,10 @@ void motor_right(signed char val);
 void motor_stop(void);
 
 // Turn by given degrees ccw
-void motor_turn(short degrees);
+void motor_turn(signed short degrees);
 
 // Drive forward by distance given in inches
 // Make sure to compensate for motor drift here
-void motor_forward(unsigned char distance);
-
-// Same as motor_forward but back
-void motor_backward(unsigned char distance);
+void motor_forward(signed short distance);
 
 #endif

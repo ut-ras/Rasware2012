@@ -6,6 +6,7 @@
 #include "driverlib/adc.h"
 
 #include "RASLib/motor.h"
+#include "RASLib/encoder.h"
 
 #include "motor.h"
 
@@ -18,7 +19,7 @@
 
 
 void motor_init(void) {
-	InitializeMotors(false), false);
+	InitializeMotors(false, false);
 }
 
 void motor_left(unsigned char val) {
@@ -34,13 +35,13 @@ void motor_stop(void) {
 	SetMotorPower(MOTOR_1, 0);
 }
 
-void motor_turn(short degrees) {
+void motor_turn(signed short degrees) {
 	
 	int encoder0;
 	int encoder1; 
 	int speed_L = 0;
 	int speed_R = 0;
-	int pos = degree * TICKS_DEGREE;
+	int pos = degrees * TICKS_DEGREE;
 	PresetEncoderCounts(0, 0);
 	InitializeEncoders(false, true);
 	encoder0 = GetEncoderCount(ENCODER_0);
@@ -66,7 +67,7 @@ void motor_turn(short degrees) {
 	//Wait(10000);
 }
 
-void motor_forward(unsigned char distance){
+void motor_forward(signed short distance){
 	
 	
 }
