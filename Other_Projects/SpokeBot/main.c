@@ -32,8 +32,7 @@ enum {
 	MOTOR_1   	     ,
 	
 	STOP        = 'o',
-	TURN			  = 'q',
-	FORWARD			= 'f',
+	GO					= 'g',
 	
 
 	SERVO_0 	  = 's',
@@ -85,26 +84,27 @@ int main(void) {
 						comm_write(STOP);
 						continue;
 					
-					case TURN:
-						{ union { signed short s; char d[2]; } data;
-						  data.d[0] = comm_read();
-							data.d[1] = comm_read();
-							motor_turn(data.s);
+					case GO:
+						{ signed char data_s;
+							union { signed long s; char d[4]; } data_l, data_r;
+							
+							data_s = comm_read();
+							
+							data_l.d[0] = comm_read();
+							data_l.d[1] = comm_read();
+							data_l.d[2] = comm_read();
+							data_l.d[3] = comm_read();
+							
+							data_r.d[0] = comm_read();
+							data_r.d[1] = comm_read();
+						  data_r.d[2] = comm_read();
+							data_r.d[3] = comm_read();
+							
+							motor_go(data_s, data_l.s, data_r.s);
 					  }
 					
 						comm_write('a');
-						comm_write(TURN);
-						continue;
-					
-					case FORWARD:
-						{ union { signed short s; char d[2]; } data;
-						  data.d[0] = comm_read();
-							data.d[1] = comm_read();
-							motor_forward(data.s);
-					  }
-					
-						comm_write('a');
-						comm_write(FORWARD);
+						comm_write(GO);
 						continue;
 					
 					case SERVO_0:
